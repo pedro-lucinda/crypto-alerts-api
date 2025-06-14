@@ -35,10 +35,10 @@ class Settings(BaseSettings):
     """
 
     app_name: str = "Crypto Alerts API"
-    app_v1_str: str = "/api/v1"
+    api_v1_str: str = "/api/v1"
 
     # JWT settings
-    secret_key: str = os.getenv("SECRET_KEY")
+    secret_key: str = os.getenv("JWT_SECRET")
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 60
 
@@ -69,9 +69,9 @@ class Settings(BaseSettings):
         if not self.sqlalchemy_database_uri:
             self.sqlalchemy_database_uri = (
                 f"postgresql://"
-                f"{self.postgres_user}"
+                f"{self.postgres_user}:"
                 f"{self.postgres_password}@"
-                f"{self.postgres_server}/"
+                f"{self.postgres_server}:5432/"
                 f"{self.postgres_db}"
             )
 

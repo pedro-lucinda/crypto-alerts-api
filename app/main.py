@@ -1,10 +1,14 @@
-from dotenv import load_dotenv
+# app/main.py
+
+"""
+Application factory and startup for the Crypto Alerts API.
+"""
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.v1.routers import alerts, auth
 from app.core.config import settings
-
-load_dotenv()
 
 
 def create_app() -> FastAPI:
@@ -13,16 +17,16 @@ def create_app() -> FastAPI:
 
     - Sets metadata (title, versioned docs URLs).
     - Applies CORS middleware.
-    - Includes all API v1 routers under `settings.api_v1_str`.
+    - Includes authentication and alerts routers under the v1 API prefix.
     """
-
-    app_with_settings = FastAPI(
+    app_settings = FastAPI(
         title=settings.app_name,
-        openapi_url=f"{settings.app_v1_str}/openapi.json",
-        docs_url=f"{settings.app_v1_str}/docs",
+        openapi_url=f"{settings.api_v1_str}/openapi.json",
+        docs_url=f"{settings.api_v1_str}/docs",
     )
 
-    app_with_settings.add_middleware(
+    # CORS middleware
+    app_settings.add_middleware(
         CORSMiddleware,
         allow_origins=settings.backends_cors_origins,
         allow_credentials=True,
@@ -30,7 +34,19 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
-    return app_with_settings
+    app_settings.include_router(
+        auth.router,
+        prefix=f"{settings.api_v1_str}/auth",
+        tags=["auth"],
+    )
+    app_settings.include_router(
+        alerts.router,
+        prefix=f"{settings.api_v1_str}/alerts",
+        tags=["alerts"],
+    )
+
+    return app_settings
 
 
+# Instantiate the application for Uvicorn to discover
 app = create_app()
