@@ -51,7 +51,8 @@ def create_alert(
     "",
     response_model=List[AlertRead],
     summary="List all price alerts",
-    description="Retrieve all active and inactive alerts belonging to the authenticated user.",
+    description="Retrieve all active and inactive alerts belonging to the "
+    "authenticated user.",
 )
 def read_alerts(
     db: Session = Depends(get_db_session),

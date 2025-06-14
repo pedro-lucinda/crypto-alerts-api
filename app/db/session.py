@@ -6,6 +6,8 @@ to produce per-request Session objects, and a FastAPI dependency
 to provide & close sessions around each request.
 """
 
+from typing import Generator
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
@@ -26,7 +28,7 @@ SessionLocal = sessionmaker(
 )
 
 
-def get_db() -> Session:
+def get_db() -> Generator[Session, None, None]:
     """
     FastAPI dependency that provides a database session and
     ensures it’s closed once the request is finished.
