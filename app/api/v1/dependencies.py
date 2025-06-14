@@ -1,5 +1,3 @@
-# app/api/v1/dependencies.py
-
 """
 API-level dependencies for version 1 of the Crypto Alerts API.
 """
@@ -10,7 +8,6 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
-from app.core.config import settings
 from app.core.security import decode_access_token
 from app.db.session import get_db
 from app.models.user import User as UserModel
@@ -44,7 +41,8 @@ def get_current_user(
     # Decode & verify JWT
     try:
         payload = decode_access_token(token)
-        user_id: int = int(payload.get("sub"))
+        # payload.get("sub") is typed as Any | None, but at runtime it's a str
+        user_id: int = int(payload.get("sub"))  # type: ignore[arg-type]
     except Exception as exc:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

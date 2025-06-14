@@ -1,9 +1,7 @@
 import os
 from pathlib import Path
-from typing import List
 
 from dotenv import load_dotenv
-from pydantic import AnyHttpUrl, Field, ValidationError
 from pydantic.v1 import BaseSettings
 
 # BASE_DIR is your project root (one level above app/)
@@ -38,16 +36,16 @@ class Settings(BaseSettings):
     api_v1_str: str = "/api/v1"
 
     # JWT settings
-    secret_key: str = os.getenv("JWT_SECRET")
+    secret_key: str = os.getenv("JWT_SECRET", default="supersecretkey")
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 60
 
     # PostgreSQL
-    postgres_server: str = os.getenv("POSTGRES_SERVER")
-    postgres_user: str = os.getenv("POSTGRES_USER")
-    postgres_password: str = os.getenv("POSTGRES_PASSWORD")
-    postgres_db: str = os.getenv("POSTGRES_DB")
-    sqlalchemy_database_uri: str = None  # computed
+    postgres_server: str = os.getenv("POSTGRES_SERVER", default="db")
+    postgres_user: str = os.getenv("POSTGRES_USER", default="postgres")
+    postgres_password: str = os.getenv("POSTGRES_PASSWORD", default="password")
+    postgres_db: str = os.getenv("POSTGRES_DB", default="crypto_alerts")
+    sqlalchemy_database_uri: str = ""  # computed
 
     # Redis
     redis_url: str = os.getenv("REDIS_URL", default="redis://localhost:6379/0")

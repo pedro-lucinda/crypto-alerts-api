@@ -4,7 +4,6 @@ Provides endpoints to create a new user and obtain JWT access tokens.
 """
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from app.api.v1.dependencies import get_db_session
@@ -60,7 +59,7 @@ def login_json(data: LoginIn, db: Session = Depends(get_db_session)):
     """
     # 1) Look up the user by email
     user = db.query(User).filter(User.email == data.email).first()
-    if not user or not verify_password(data.password, user.password_hash):
+    if not user or not verify_password(data.password, user.password_hash):  # type: ignore[arg-type]
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",

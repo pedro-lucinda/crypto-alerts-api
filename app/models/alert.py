@@ -4,8 +4,6 @@
 SQLAlchemy model for price alerts.
 """
 
-from datetime import datetime, timezone
-
 from sqlalchemy import (
     JSON,
     Boolean,
