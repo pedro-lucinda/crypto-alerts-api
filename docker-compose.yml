@@ -1,25 +1,21 @@
-# docker-compose.yml
 version: "3.8"
 
 services:
   api:
-    # Build the image from your Dockerfile
     build:
       context: .
       dockerfile: Dockerfile
     image: crypto-alerts-api:latest
     container_name: crypto-alerts-api
-    # Run the FastAPI server
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     ports:
       - "8000:8000"
-    # Load environment variables (DB creds, JWT secret, etc.)
     env_file:
       - .env
-    # Mount your code for live reload during development
     environment:
       - SQLALCHEMY_DATABASE_URI=postgresql+psycopg2://postgres:example@db:5432/crypto_alerts
-
+      - REDIS_URL=redis://redis:6379/0
+      - JWT_SECRET=${JWT_SECRET}
     volumes:
       - .:/app:cached
     depends_on:
@@ -31,11 +27,9 @@ services:
     container_name: crypto-alerts-db
     restart: always
     environment:
-      # These should match your `.env` entries
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
-    # Persist data between restarts
     volumes:
       - db-data:/var/lib/postgresql/data
     ports:
@@ -48,6 +42,43 @@ services:
     ports:
       - "6379:6379"
 
+  celery-beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: crypto-alerts-api:latest
+    container_name: crypto-alerts-celery-beat
+    command: celery -A app.core.celery_app:celery_app beat --loglevel=info
+    env_file:
+      - .env
+    environment:
+      - SQLALCHEMY_DATABASE_URI=postgresql+psycopg2://postgres:example@db:5432/crypto_alerts
+      - REDIS_URL=redis://redis:6379/0
+      - JWT_SECRET=${JWT_SECRET}
+    volumes:
+      - .:/app:cached
+    depends_on:
+      - redis
+      - db
+
+  celery-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: crypto-alerts-api:latest
+    container_name: crypto-alerts-celery-worker
+    command: celery -A app.core.celery_app:celery_app worker --loglevel=info
+    env_file:
+      - .env
+    environment:
+      - SQLALCHEMY_DATABASE_URI=postgresql+psycopg2://postgres:example@db:5432/crypto_alerts
+      - REDIS_URL=redis://redis:6379/0
+      - JWT_SECRET=${JWT_SECRET}
+    volumes:
+      - .:/app:cached
+    depends_on:
+      - redis
+      - db
+
 volumes:
-  # Named volume for Postgres data persistence
   db-data:

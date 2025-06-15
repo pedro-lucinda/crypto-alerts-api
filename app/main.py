@@ -1,5 +1,3 @@
-# app/main.py
-
 """
 Application factory and startup for the Crypto Alerts API.
 """
