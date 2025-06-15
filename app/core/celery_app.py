@@ -8,6 +8,8 @@ Explicitly imports task modules so they’re always registered.
 from celery import Celery
 from celery.schedules import crontab
 
+import app.tasks.notifier  # pylint: disable=unused-import
+import app.tasks.poller  # pylint: disable=unused-import
 from app.core.config import settings
 
 # Instantiate the Celery app
@@ -17,9 +19,6 @@ celery_app = Celery(
     backend=settings.redis_url,
 )
 
-# Explicitly import your task modules so the @shared_task decorators run
-import app.tasks.notifier  # noqa: F401
-import app.tasks.poller  # noqa: F401
 
 # Beat schedule: run poll_all_symbols every minute
 celery_app.conf.beat_schedule = {
