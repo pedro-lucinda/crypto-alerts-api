@@ -9,7 +9,7 @@ from celery import Celery
 from celery.schedules import crontab
 
 import app.tasks.notifier  # pylint: disable=unused-import
-import app.tasks.poller  # pylint: disable=unused-import
+import app.tasks.poller  # pylint: disable=unused-import  # noqa: F401
 from app.core.config import settings
 
 # Instantiate the Celery app
